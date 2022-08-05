@@ -1,9 +1,35 @@
-'use strict';
+"use strict";
 
 function html(config) {
 	const jsonConfig = JSON.stringify(config);
-	return String.raw`
+	return (
+		String.raw`
 <style>
+.play{
+	background-color: #4a304b !important;
+	color: white !important;
+	font-size: 14px !important;
+	padding: 8px 40px !important;
+	font-family: 'Ubuntu', sans-serif !important;
+}
+
+.stop{
+	display: none !important;
+}
+
+input{
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    font-size: 13px;
+	font-family: 'Ubuntu', sans-serif !important;
+
+}
+
+.play:hover{
+	background-color: #39213a !important;
+}
 .ui_upload {
 	height: 100%;
 	display: flex;
@@ -17,14 +43,16 @@ function html(config) {
 	text-align: center;
 	width: 99%;
 }
+
 .ui_upload > progress {
-	width: 90%;
+	display: none;
+
 }
 .ui_upload.done > progress {
 	display: none;
 }
 .ui_upload > p.result {
-	font-size: 150%;
+	font-size: 90%;
 }
 .ui_upload:not(.done) > p.result {
 	display: none;
@@ -42,17 +70,19 @@ function html(config) {
 </style>
 
 <div id="ui_upload-{{unique}}" class="ui_upload"
-	ng-init='init(` + jsonConfig + `)'
+	ng-init='init(` +
+		jsonConfig +
+		`)'
 	ng-on-dragleave="ondragleave($event)" ng-on-dragenter="ondragenter($event)"
 	ng-on-dragover="ondragover($event)" ng-on-drop="ondrop($event)">
-	<p class="title">{{title}}</p>
 	<progress value="0" max="100"></progress>
-	<p class="result">✔️ <small>0s</small></p>
+	<p class="result">File has been Uploaded</p>
 	<input type="file" ng-on-change="onchange($event)" name="ui_upload-filename" />
-	<button class="play" ng-click="playClick($event)" disabled="disabled">▶️</button>
-	<button class="stop" ng-click="stopClick($event)" disabled="disabled">⏹️</button>
+	<button class="play" ng-click="playClick($event)" disabled="disabled">Upload</button>
+	<button class="stop" ng-click="stopClick($event)" disabled="disabled"></button>
 </div>
-`;
+`
+	);
 }
 
 // NB: This function goes through a toString + eval by Node-RED Dashboard, so no scope
@@ -61,13 +91,13 @@ function initController($scope, events) {
 
 	$scope.init = function (config) {
 		$scope.config = config;
-		$scope.unique = $scope.$eval('$id');
-		$scope.title = config.title || config.name || 'Upload';
+		$scope.unique = $scope.$eval("$id");
+		$scope.title = config.title || config.name || "Upload";
 		$scope.chunkCallback = null;
 		$scope.downstreamReady = false;
 	};
 
-	$scope.$watch('msg', function (msg) {
+	$scope.$watch("msg", function (msg) {
 		// Message received from back-end
 		if (msg && msg.tick && !$scope.stop && !$scope.pause) {
 			if ($scope.chunkCallback) {
@@ -79,9 +109,9 @@ function initController($scope, events) {
 	});
 
 	function sendFile(file) {
-		const div = document.getElementById('ui_upload-' + $scope.unique);
-		div.classList.remove('done');
-		const progress = div.querySelector('progress');
+		const div = document.getElementById("ui_upload-" + $scope.unique);
+		div.classList.remove("done");
+		const progress = div.querySelector("progress");
 		$scope.stop = false;
 		$scope.downstreamReady = true;
 
@@ -89,7 +119,7 @@ function initController($scope, events) {
 		const startTime = Date.now() - 1;
 		const chunk = 1024 * Math.max($scope.config.chunk || 1024, 1);
 		const count = Math.ceil(file.size / chunk);
-		const partsId = file.name + ';' + file.size + ';' + Date.now();
+		const partsId = file.name + ";" + file.size + ";" + Date.now();
 		let partsIndex = -1;
 		let loaded = 0;
 
@@ -107,18 +137,21 @@ function initController($scope, events) {
 					},
 					parts: {
 						id: partsId,
-						type: 'string',
-						ch: '',
+						type: "string",
+						ch: "",
 						index: partsIndex + 1,
 						count: partsIndex + 2,
 						chunk: chunk,
 						abort: true,
 					},
-					payload: '',
+					payload: "",
 				});
 				$scope.stopClick();
 				return;
-			} else if (!$scope.chunkCallback && ($scope.pause || !$scope.downstreamReady)) {
+			} else if (
+				!$scope.chunkCallback &&
+				($scope.pause || !$scope.downstreamReady)
+			) {
 				$scope.chunkCallback = { f: fileReader.onload, e: e };
 				return;
 			}
@@ -134,8 +167,8 @@ function initController($scope, events) {
 				},
 				parts: {
 					id: partsId,
-					type: 'string',
-					ch: '',
+					type: "string",
+					ch: "",
 					index: partsIndex,
 					count: count,
 					chunk: chunk,
@@ -144,11 +177,11 @@ function initController($scope, events) {
 				complete: partsIndex + 1 >= count ? true : undefined,
 			});
 			loaded += chunk;
-			progress.value = 100 * loaded / file.size;
+			progress.value = (100 * loaded) / file.size;
 			if (loaded <= file.size) {
 				blob = file.slice(loaded, loaded + chunk);
-				if ($scope.config.transfer === 'text') {
-					fileReader.readAsText(blob, 'Windows-1252');
+				if ($scope.config.transfer === "text") {
+					fileReader.readAsText(blob, "Windows-1252");
 				} else {
 					fileReader.readAsArrayBuffer(blob);
 				}
@@ -160,15 +193,15 @@ function initController($scope, events) {
 		};
 
 		blob = file.slice(0, chunk);
-		if ($scope.config.transfer === 'text') {
+		if ($scope.config.transfer === "text") {
 			// NB: Can only be a single-byte encoding / ASCII, so no Unicode / UTF-8!
-			fileReader.readAsText(blob, 'Windows-1252');
+			fileReader.readAsText(blob, "Windows-1252");
 		} else {
 			fileReader.readAsArrayBuffer(blob);
 		}
 	}
 
-	let backgroundColor = '';
+	let backgroundColor = "";
 
 	$scope.ondragleave = function (e) {
 		e.preventDefault();
@@ -187,7 +220,7 @@ function initController($scope, events) {
 		e.stopPropagation();
 		const div = e.currentTarget;
 		backgroundColor |= div.style.background;
-		div.style.background = '#55E';
+		div.style.background = "#55E";
 	};
 
 	$scope.ondrop = function (e) {
@@ -197,33 +230,35 @@ function initController($scope, events) {
 			e.stopPropagation();
 			$scope.stopClick(e);
 			const div = e.currentTarget;
-			div.style.background = '#5E5';
-			setTimeout(function () { div.style.background = backgroundColor; }, 300);
-			const input = div.querySelector('input');
+			div.style.background = "#5E5";
+			setTimeout(function () {
+				div.style.background = backgroundColor;
+			}, 300);
+			const input = div.querySelector("input");
 			input.files = dataTransfer.files;
-			div.querySelector('.play').innerHTML = '⏸️';
-			div.querySelector('.play').disabled = false;
-			div.querySelector('.stop').disabled = false;
+			// div.querySelector(".play").innerHTML = "⏸️";
+			div.querySelector(".play").disabled = false;
+			div.querySelector(".stop").disabled = false;
 			sendFile(dataTransfer.files[0]);
 		}
 	};
 
 	$scope.playClick = function (e) {
-		const div = document.getElementById('ui_upload-' + $scope.unique);
+		const div = document.getElementById("ui_upload-" + $scope.unique);
 		if ($scope.pause) {
-			div.querySelector('.play').innerHTML = '⏸️';
+			// div.querySelector(".play").innerHTML = "⏸️";
 			$scope.pause = false;
 			$scope.chunkCallback.f($scope.chunkCallback.e);
 		} else if (!$scope.stop) {
 			$scope.pause = true;
-			div.querySelector('.play').innerHTML = '▶️';
+			div.querySelector(".play").innerHTML = "Upload";
 		} else {
 			$scope.stopClick(e);
-			const input = div.querySelector('input');
+			const input = div.querySelector("input");
 			if (input.files && input.files.length > 0) {
-				div.querySelector('.play').innerHTML = '⏸️';
-				div.querySelector('.play').disabled = false;
-				div.querySelector('.stop').disabled = false;
+				// div.querySelector(".play").innerHTML = "⏸️";
+				div.querySelector(".play").disabled = false;
+				div.querySelector(".stop").disabled = false;
 				sendFile(input.files[0]);
 			}
 		}
@@ -234,15 +269,16 @@ function initController($scope, events) {
 		$scope.pause = false;
 		$scope.downstreamReady = false;
 		$scope.chunkCallback = null;
-		const div = document.getElementById('ui_upload-' + $scope.unique);
-		div.querySelector('progress').value = 0;
+		const div = document.getElementById("ui_upload-" + $scope.unique);
+		div.querySelector("progress").value = 0;
 		if ($scope.duration) {
-			div.classList.add('done');
-			div.querySelector('p.result > small').innerHTML = '' + $scope.duration + 's';
+			div.classList.add("done");
+			div.querySelector("p.result > small").innerHTML =
+				"" + $scope.duration + "s";
 		}
-		div.querySelector('.play').innerHTML = '▶️';
-		div.querySelector('.play').disabled = false;
-		div.querySelector('.stop').disabled = true;
+		div.querySelector(".play").innerHTML = "Upload";
+		div.querySelector(".play").disabled = false;
+		div.querySelector(".stop").disabled = true;
 	};
 
 	$scope.onchange = function (e) {
@@ -298,7 +334,7 @@ module.exports = function (RED) {
 	let ui;
 
 	function uiUpload(config) {
-		const node = this;	// jshint ignore:line
+		const node = this; // jshint ignore:line
 
 		// Declare the ability of this node to consume ticks from downstream for back-pressure
 		node.tickConsumer = true;
@@ -307,7 +343,7 @@ module.exports = function (RED) {
 		try {
 			if (!ui) {
 				// load Dashboard API
-				ui = RED.require('node-red-dashboard')(RED);
+				ui = RED.require("@mayahq/maya-red-dashboard")(RED);
 			}
 
 			RED.nodes.createNode(node, config);
@@ -319,7 +355,7 @@ module.exports = function (RED) {
 			const done = ui.addWidget({
 				node: node,
 				format: html(config),
-				templateScope: 'local',
+				templateScope: "local",
 				group: config.group,
 				order: config.order,
 				height: Math.max(config.height || 5, 3),
@@ -338,7 +374,11 @@ module.exports = function (RED) {
 					if (tickDownstreamId === undefined) {
 						// Search for any output node handling ticks for back-pressure,
 						// or any input node (which must take this responsability)
-						tickDownstreamId = findOutputNodeId(node, n => RED.nodes.getNode(n.id).tickProvider) || findInputNodeId(node);
+						tickDownstreamId =
+							findOutputNodeId(
+								node,
+								(n) => RED.nodes.getNode(n.id).tickProvider
+							) || findInputNodeId(node);
 					}
 					if (!tickDownstreamId) {
 						// If there is no tick provider downstream, send default tick for back-pressure
@@ -352,11 +392,11 @@ module.exports = function (RED) {
 				// callback to initialize in controller
 				initController: initController,
 			});
-			node.on('close', done);
+			node.on("close", done);
 		} catch (ex) {
 			console.error(ex);
 		}
 	}
 
-	RED.nodes.registerType('ui_upload', uiUpload);
+	RED.nodes.registerType("ui_upload", uiUpload);
 };
