@@ -11,6 +11,7 @@ function html(config) {
 	font-size: 14px !important;
 	padding: 8px 40px !important;
 	font-family: 'Ubuntu', sans-serif !important;
+	width: 100% !important;
 }
 
 .stop{
@@ -54,6 +55,13 @@ input{
 .ui_upload > p.result {
 	font-size: 90%;
 }
+
+small{
+	font-size: 90%;
+
+}
+
+
 .ui_upload:not(.done) > p.result {
 	display: none;
 }
@@ -76,7 +84,7 @@ input{
 	ng-on-dragleave="ondragleave($event)" ng-on-dragenter="ondragenter($event)"
 	ng-on-dragover="ondragover($event)" ng-on-drop="ondrop($event)">
 	<progress value="0" max="100"></progress>
-	<p class="result">File has been Uploaded</p>
+	<p class="result">file is uploaded in <small>0s</small></p>
 	<input type="file" ng-on-change="onchange($event)" name="ui_upload-filename" />
 	<button class="play" ng-click="playClick($event)" disabled="disabled">Upload</button>
 	<button class="stop" ng-click="stopClick($event)" disabled="disabled"></button>
