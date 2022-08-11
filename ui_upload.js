@@ -5,14 +5,17 @@ function html(config) {
 	return (
 		String.raw`
 <style>
+
 .play{
 	background-color: #4a304b !important;
 	color: white !important;
 	font-size: 14px !important;
-	padding: 8px 40px !important;
 	font-family: 'Ubuntu', sans-serif !important;
 	width: 100% !important;
+	height: 40px !important;
 }
+
+
 
 .stop{
 	display: none !important;
@@ -21,7 +24,8 @@ function html(config) {
 input{
     border: 0;
     padding: 0;
-    margin: 0;
+    margin: 1rem 0rem;
+	width: 100% !important;
     background: transparent;
     font-size: 13px;
 	font-family: 'Ubuntu', sans-serif !important;
@@ -32,7 +36,6 @@ input{
 	background-color: #39213a !important;
 }
 .ui_upload {
-	height: 100%;
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -40,9 +43,12 @@ input{
 }
 .ui_upload p.title {
 	background: transparent !important;
-	font-size: 175%;
-	text-align: center;
-	width: 99%;
+	color: #4b4b4b !important;
+	width: 100%;
+	font-size: 14px !important;
+	font-family: 'Ubuntu', sans-serif !important;
+	text-align: left !important;
+	font-weight: 500 !important;
 }
 
 .ui_upload > progress {
@@ -53,13 +59,38 @@ input{
 	display: none;
 }
 .ui_upload > p.result {
-	font-size: 90%;
+	width: 100%;
+	text-align: left !important;
+	font-size: 10px !important;
+	font-family: 'Ubuntu', sans-serif !important;
+	padding-top: 0.5rem;
+	color: #4b4b4b !important;
+
+
+}
+
+.input{
+	color: #4b4b4b !important;
+	font-family: 'Ubuntu', sans-serif !important;
+	font-size: 14px !important;
 }
 
 small{
-	font-size: 90%;
-
+	font-size: 10px !important;
+	color: #4b4b4b !important;
+	font-family: 'Ubuntu', sans-serif !important;
 }
+::-webkit-file-upload-button {
+	background: #4a304b;
+	color: white;
+	padding: 8px 25px;
+	border: none;
+	font-size: 12px !important;
+  }
+
+  ::-webkit-file-upload-button:hover {
+	background: #39213a;
+  }
 
 
 .ui_upload:not(.done) > p.result {
@@ -83,9 +114,10 @@ small{
 		`)'
 	ng-on-dragleave="ondragleave($event)" ng-on-dragenter="ondragenter($event)"
 	ng-on-dragover="ondragover($event)" ng-on-drop="ondrop($event)">
+	<p class="title">{{title}}</p>
 	<progress value="0" max="100"></progress>
-	<p class="result">file is uploaded in <small>0s</small></p>
-	<input type="file" ng-on-change="onchange($event)" name="ui_upload-filename" />
+	<input type="file" class="input" ng-on-change="onchange($event)" name="ui_upload-filename" />
+	<p class="result">file uploaded in <small>0s</small></p>
 	<button class="play" ng-click="playClick($event)" disabled="disabled">Upload</button>
 	<button class="stop" ng-click="stopClick($event)" disabled="disabled"></button>
 </div>
