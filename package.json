@@ -1,6 +1,6 @@
 {
 	"name": "@mayahq/maya-red-contrib-ui-upload",
-	"version": "0.5.3",
+	"version": "0.5.4",
 	"description": "Dashboard UI widget node for uploading a file content by Socket.io streaming. Forked for Maya Labs",
 	"keywords": [
 		"upload",
